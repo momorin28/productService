@@ -1,11 +1,15 @@
+# Name: Monica Morrison
+# CMSC 455
+
 from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 # names prices and quanitity 
 products = [
-    {"id": 1, "name": "chocolate", "price": 5, "quantity": 1},
-    {"id": 2, "name": "gum", "price": 2.5, "quantity": 2},
-    {"id": 3, "name": "chips", "price": 3, "quantity": 2}
+    {"id": 1, "name": "chocolate", "price": 5, "quantity": 10},
+    {"id": 2, "name": "gum", "price": 2, "quantity": 10},
+    {"id": 3, "name": "potato chips", "price": 3, "quantity": 10},
+    {"id": 4, "name": "ice cream", "price": 6, "quantity": 10}
 ]
 
 # Endpoint 1: /products (GET): Retrieve a list of available grocery products, including their names, prices, and
@@ -13,8 +17,6 @@ products = [
 @app.route('/products', methods=['GET'])
 def get_products():
     return jsonify({"products": products})
-
-# #endpoints --
 
 # /products/product id (GET): Get details about a specific product by its unique ID.
 # Endpoint 2: Get a specific task by ID
@@ -39,7 +41,34 @@ def create_products():
     products.append(new_product)
     return jsonify({"message": "Product created", "product": new_product}), 201
 
+@app.route('/products/take/<int:product_id>', methods=['POST'])
+def takeQuantity(product_id):
+    quant = request.json.get('quantity')
+    
+    product = next((pID for pID in products if pID['id'] == product_id), None)
+    #product exists
+    if product:
+        #prevents neg 
+        if product["quantity"] >= quant:
+            product["quantity"] -= quant
+            return jsonify({"message": f"Product quantity is now {quant} for product {product_id}"})
+        else:
+            return jsonify({"error": "Request exceeds available quantity"}), 400
+    else:
+        return jsonify({"error": "Product not found"})
 
-#last endpoint, will have additional json --allow for addition and subtraction 
+@app.route('/products/return/<int:product_id>', methods=['POST'])
+def returnQuantity(product_id):
+    quant = request.json.get('quantity')
+    
+    product = next((pID for pID in products if pID['id'] == product_id), None)
+    #product exists
+    if product:
+        #prevents neg if quantity in inventory is greater or equal to request quant 
+        product["quantity"] += quant
+        return jsonify({"message": f"Product quantity is now {quant} for product {product_id}"})
+    else:
+        return jsonify({"error": "Product not found"})
+
 if __name__ == '__main__':
     app.run(debug=True)
