@@ -51,7 +51,7 @@ def takeQuantity(product_id):
         #prevents neg 
         if product["quantity"] >= quant:
             product["quantity"] -= quant
-            return jsonify({"message": f"Product quantity is now {quant} for product {product_id}"})
+            return jsonify({"message": f"Product quantity removed {quant} from product {product_id}"})
         else:
             return jsonify({"error": "Request exceeds available quantity"}), 400
     else:
@@ -66,7 +66,7 @@ def returnQuantity(product_id):
     if product:
         #prevents neg if quantity in inventory is greater or equal to request quant 
         product["quantity"] += quant
-        return jsonify({"message": f"Product quantity is now {quant} for product {product_id}"})
+        return jsonify({"message": f"Product quantity is added {quant} to product {product_id}"})
     else:
         return jsonify({"error": "Product not found"})
 
